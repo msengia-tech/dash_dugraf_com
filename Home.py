@@ -81,30 +81,96 @@ except ValueError:
     data_fim_p1_padrao = hoje.replace(year=ano_anterior, day=28)
 
 # --- Filtros de Período ---
-st.subheader("Período anterior vs Atual")
+
+st.subheader("Filtros")
+st.write("Período Anterior vs Atual")
+
+
 col1_p1, col2_p1, col1_p2, col2_p2 = st.columns(4)
 with col1_p1:
     data_inicio_p1 = st.date_input(
-        "Data Inicial",
+        "Data Inicial (período anterior)",
         value=data_inicio_p1_padrao,
         key="p1_start",
         format="DD/MM/YYYY",
     )
 with col2_p1:
     data_fim_p1 = st.date_input(
-        "Data Final", value=data_fim_p1_padrao, key="p1_end", format="DD/MM/YYYY"
+        "Data Final (período anterior)",
+        value=data_fim_p1_padrao,
+        key="p1_end",
+        format="DD/MM/YYYY",
     )
 
 with col1_p2:
     data_inicio_p2 = st.date_input(
-        "Data Inicial",
+        "Data Inicial (período atual)",
         value=data_inicio_p2_padrao,
         key="p2_start",
         format="DD/MM/YYYY",
     )
 with col2_p2:
     data_fim_p2 = st.date_input(
-        "Data Final", value=data_fim_p2_padrao, key="p2_end", format="DD/MM/YYYY"
+        "Data Final (período atual)",
+        value=data_fim_p2_padrao,
+        key="p2_end",
+        format="DD/MM/YYYY",
     )
+
+st.markdown("---")
+
+# --- Filtragem do DataFrame ---
+
+# Converte as datas do input para datetime para a comparação
+data_inicio_p1_dt = pd.to_datetime(data_inicio_p1)
+data_fim_p1_dt = (
+    pd.to_datetime(data_fim_p1) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
+)
+data_inicio_p2_dt = pd.to_datetime(data_inicio_p2)
+data_fim_p2_dt = (
+    pd.to_datetime(data_fim_p2) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
+)
+
+# Cria dataframes separados para cada período usando os filtros de data
+df_p1 = df_mx[
+    (df_mx["emissao"] >= data_inicio_p1_dt) & (df_mx["emissao"] <= data_fim_p1_dt)
+]
+
+df_p2 = df_mx[
+    (df_mx["emissao"] >= data_inicio_p2_dt) & (df_mx["emissao"] <= data_fim_p2_dt)
+]
+
+# --- Conteúdo Principal ---
+
+st.subheader(" KPI's - Análise conforme filtros ")
+
+# --- Cálculos para o Período 2 (Atual) ---
+faturado_us_p2 = df_p2["total_us"].sum()
+
+# --- Cálculos para o Período 1 (Anterior) ---
+faturado_us_p1 = df_p1["total_us"].sum()
+
+
+# --- Cálculos de Variação (Delta) em Percentual ---
+def calcular_variacao_perc(atual, anterior):
+    """Calcula a variação percentual de forma segura, evitando divisão por zero."""
+    if anterior > 0:
+        return (atual - anterior) / anterior
+    # Se o anterior for 0, não há base para comparação percentual.
+    # Pode retornar 0 ou um valor grande se o atual for > 0.
+    # Retornar 0 é mais seguro para a visualização.
+    return 0
+
+
+delta_faturado_us_perc = calcular_variacao_perc(faturado_us_p2, faturado_us_p1)
+
+# --- Inclusão dos CARDs com as métricas no Dashboard ---
+col1, col2, col3, col4 = st.columns(4)
+
+col1.metric(
+    "US$ Faturado (Período Atual)",
+    format_currency(faturado_us_p2, "USD", locale="pt_BR"),
+    format_percent(delta_faturado_us_perc, locale="pt_BR", format="#,##0.00%"),
+)
 
 st.markdown("---")
