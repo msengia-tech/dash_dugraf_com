@@ -69,7 +69,7 @@ def show_header():
         <div class="single-row-header">
             <!-- Logo embutido em base64 para carregar localmente -->
             <img class="single-row-logo" src="data:image/png;base64,{logo_b64}" alt="Logo" />
-            <h1>DASHBOARD DUGRAF - DIRETORIA</h1>
+            <h1>DASHBOARD DUGRAF - COMERCIAL</h1>
         </div>
         """,
         unsafe_allow_html=True,
