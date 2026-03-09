@@ -81,8 +81,8 @@ except ValueError:
     data_fim_p1_padrao = hoje.replace(year=ano_anterior, day=28)
 
 # --- Filtros de Período ---
-st.subheader("Período 1 (Anterior)")
-col1_p1, col2_p1 = st.columns(2)
+st.subheader("Período anterior vs Atual")
+col1_p1, col2_p1, col1_p2, col2_p2 = st.columns(4)
 with col1_p1:
     data_inicio_p1 = st.date_input(
         "Data Inicial",
@@ -95,8 +95,6 @@ with col2_p1:
         "Data Final", value=data_fim_p1_padrao, key="p1_end", format="DD/MM/YYYY"
     )
 
-st.subheader("Período 2 (Atual)")
-col1_p2, col2_p2 = st.columns(2)
 with col1_p2:
     data_inicio_p2 = st.date_input(
         "Data Inicial",
